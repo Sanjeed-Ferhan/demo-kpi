@@ -3,695 +3,828 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Production Dashboard</title>
+<title>KPI Workflow System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e29;
+    --bg4: #20253200;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --text2: #8b8fa8;
+    --text3: #545878;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
 
-:root{
-  --navy:#0f1c35;
-  --navy2:#172340;
-  --navy3:#1d2d50;
-  --blue:#2a6fdb;
-  --blue2:#3b82f6;
-  --cyan:#06b6d4;
-  --green:#22c55e;
-  --green2:#16a34a;
-  --amber:#f59e0b;
-  --red:#ef4444;
-  --bg:#f0f4fa;
-  --surface:#ffffff;
-  --surface2:#f7f9fd;
-  --border:#dde4f0;
-  --text:#0f1c35;
-  --muted:#64748b;
-  --shadow:0 1px 3px rgba(15,28,53,.08),0 4px 16px rgba(15,28,53,.06);
-  --shadow-lg:0 4px 24px rgba(15,28,53,.12);
-}
+    --helper:     #1dbe8a;
+    --helper-bg:  rgba(29,190,138,0.10);
+    --operator:   #4b9cf5;
+    --operator-bg:rgba(75,156,245,0.10);
+    --supervisor: #a78bfa;
+    --supervisor-bg:rgba(167,139,250,0.10);
+    --officer:    #f59e0b;
+    --officer-bg: rgba(245,158,11,0.10);
+    --manager:    #f97066;
+    --manager-bg: rgba(249,112,102,0.10);
 
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    --ok:   #1dbe8a;
+    --ok-bg: rgba(29,190,138,0.10);
+    --warn: #f59e0b;
+    --warn-bg: rgba(245,158,11,0.10);
+    --fail: #f97066;
+    --fail-bg: rgba(249,112,102,0.10);
 
-/* ── TOPBAR ── */
-.topbar{
-  background:var(--navy);
-  padding:0 24px;
-  height:54px;
-  display:flex;align-items:center;gap:12px;
-  position:sticky;top:0;z-index:200;
-}
-.logo-mark{
-  width:32px;height:32px;border-radius:8px;
-  background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 100%);
-  display:grid;place-items:center;flex-shrink:0;
-}
-.logo-mark svg{width:16px;height:16px;fill:white}
-.app-title{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;color:#fff;letter-spacing:.02em}
-.app-title span{color:var(--cyan)}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
-.status-dot{
-  width:8px;height:8px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 0 3px rgba(34,197,94,.25);
-  animation:pulse 2s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.25)}50%{box-shadow:0 0 0 6px rgba(34,197,94,.1)}}
-.status-text{font-size:.75rem;color:#94a3b8}
-#last-updated{font-size:.72rem;color:#64748b;background:rgba(255,255,255,.06);padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.1)}
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
 
-/* ── FILTERS BAR ── */
-.filters{
-  background:var(--surface);
-  border-bottom:1px solid var(--border);
-  padding:14px 24px;
-  display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;
-  box-shadow:0 2px 8px rgba(15,28,53,.05);
-}
-.fg{display:flex;flex-direction:column;gap:4px}
-.fg label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
-.fg select,.fg input[type=date]{
-  padding:7px 10px;
-  border:1.5px solid var(--border);
-  border-radius:7px;
-  font-family:'DM Sans',sans-serif;
-  font-size:.875rem;
-  color:var(--text);
-  background:var(--surface2);
-  min-width:130px;
-  cursor:pointer;
-  transition:border-color .15s,box-shadow .15s;
-  appearance:auto;
-}
-.fg select:focus,.fg input[type=date]:focus{outline:none;border-color:var(--blue2);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
-.filter-btns{display:flex;gap:8px;margin-left:auto}
-.btn{
-  padding:8px 16px;border:none;border-radius:7px;
-  font-family:'DM Sans',sans-serif;font-weight:600;font-size:.85rem;
-  cursor:pointer;display:flex;align-items:center;gap:6px;
-  transition:filter .15s,transform .1s;
-}
-.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
-.btn:active{transform:translateY(0)}
-.btn-reset{background:#e2e8f0;color:#475569}
-.btn-refresh{background:var(--blue);color:#fff}
-.btn-excel{background:var(--green2);color:#fff}
-.btn svg{width:14px;height:14px;fill:currentColor}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── KPI STRIP ── */
-.kpi-strip{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:1px;background:var(--border);
-  margin:20px 24px;
-  border-radius:12px;overflow:hidden;
-  box-shadow:var(--shadow);
-}
-.kpi{
-  background:var(--surface);
-  padding:18px 16px;
-  display:flex;flex-direction:column;gap:5px;
-  transition:background .15s;
-}
-.kpi:hover{background:#f0f6ff}
-.kpi-label{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
-.kpi-val{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:var(--blue);line-height:1}
-.kpi-sub{font-size:.7rem;color:var(--muted);margin-top:2px}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
 
-/* loading shimmer */
-.shimmer{
-  background:linear-gradient(90deg,#f0f4fa 25%,#e2e8f0 50%,#f0f4fa 75%);
-  background-size:200% 100%;
-  animation:shimmer 1.4s infinite;
-  border-radius:6px;height:32px;width:70%;
-}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
-/* ── TABLE ── */
-.table-section{margin:0 24px 32px}
-.table-card{
-  background:var(--surface);
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-}
-.table-header{
-  padding:14px 18px;
-  display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);
-  background:var(--surface2);
-}
-.table-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;color:var(--navy)}
-.row-count{font-size:.78rem;color:var(--muted);background:var(--bg);padding:3px 10px;border-radius:20px;border:1px solid var(--border)}
-.tscroll{overflow-x:auto;max-height:500px;overflow-y:auto}
-table{width:100%;border-collapse:collapse;font-size:.8rem;white-space:nowrap}
-thead{position:sticky;top:0;z-index:10}
-thead tr{background:var(--navy)}
-th{
-  color:#e2e8f0;
-  font-family:'Syne',sans-serif;font-size:.68rem;font-weight:700;
-  letter-spacing:.07em;text-transform:uppercase;
-  padding:11px 13px;text-align:center;
-  border-right:1px solid rgba(255,255,255,.08);
-  cursor:pointer;user-select:none;
-  transition:background .1s;
-}
-th:hover{background:var(--navy3)}
-th.asc::after{content:' ▲';font-size:.6rem;opacity:.7}
-th.desc::after{content:' ▼';font-size:.6rem;opacity:.7}
-tbody tr{border-bottom:1px solid #eef2f9;transition:background .1s}
-tbody tr:nth-child(even){background:#fafbfd}
-tbody tr:hover{background:#eef5ff}
-td{padding:9px 13px;text-align:center;border-right:1px solid #f0f4fa}
-td:first-child{font-weight:500;color:var(--navy)}
+  /* Layout */
+  .shell { display: flex; min-height: 100vh; }
 
-.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-weight:700;font-size:.7rem}
-.badge-a{background:#dcfce7;color:#166534}
-.badge-b{background:#fef9c3;color:#854d0e}
-.badge-c{background:#fce7f3;color:#9d174d}
-.badge-d{background:#ede9fe;color:#4c1d95}
-.pct{font-weight:600}
-.good{color:#16a34a}.warn{color:#d97706}.bad{color:#dc2626}
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
 
-/* footer / pagination */
-.tfoot{
-  padding:10px 16px;
-  display:flex;align-items:center;gap:6px;
-  border-top:1px solid var(--border);
-  background:var(--surface2);
-}
-.pinfo{font-size:.78rem;color:var(--muted);margin-right:auto}
-.pbtn{
-  padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;
-  background:var(--surface);color:var(--text);font-size:.78rem;
-  font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;
-}
-.pbtn:hover:not(:disabled){background:var(--blue);color:#fff;border-color:var(--blue)}
-.pbtn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-.pbtn:disabled{opacity:.35;cursor:default}
+  .sidebar-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sidebar-logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ok);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:0.6;transform:scale(1.2)}
+  }
+  .sidebar-sub { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: var(--mono); }
 
-/* ── LOADER OVERLAY ── */
-.loader{
-  position:fixed;inset:0;background:rgba(15,28,53,.55);
-  display:grid;place-items:center;z-index:999;
-  backdrop-filter:blur(3px);
-  transition:opacity .3s;
-}
-.loader.hidden{opacity:0;pointer-events:none}
-.spinner{
-  width:44px;height:44px;border:4px solid rgba(59,130,246,.2);
-  border-top-color:var(--blue2);border-radius:50%;
-  animation:spin .8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loader-text{color:#fff;font-family:'Syne',sans-serif;font-size:.85rem;margin-top:14px;text-align:center;opacity:.8}
+  .sidebar-section { padding: 14px 12px 6px; }
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
 
-/* ── ERROR BANNER ── */
-.error-banner{
-  margin:16px 24px;padding:14px 18px;
-  background:#fef2f2;border:1px solid #fecaca;border-radius:10px;
-  color:#991b1b;font-size:.85rem;display:none;align-items:center;gap:10px;
-}
-.error-banner.show{display:flex}
+  .role-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: none;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    text-align: left;
+  }
+  .role-btn:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .role-btn.active { background: var(--role-bg,rgba(255,255,255,0.06)); color: var(--role-color,var(--text)); }
+  .role-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--role-color); flex-shrink: 0; }
+  .role-badge-count {
+    margin-left: auto;
+    font-size: 10px;
+    font-family: var(--mono);
+    background: var(--fail-bg);
+    color: var(--fail);
+    border-radius: 20px;
+    padding: 1px 7px;
+  }
+  .role-badge-count.warn { background: var(--warn-bg); color: var(--warn); }
+  .role-badge-count.ok { background: var(--ok-bg); color: var(--ok); }
 
-@media(max-width:900px){
-  .kpi-strip{grid-template-columns:repeat(3,1fr)}
-  .filter-btns{margin-left:0}
-  .filters{gap:8px}
-}
-@media(max-width:560px){
-  .kpi-strip{grid-template-columns:repeat(2,1fr)}
-  .kpi-val{font-size:1.4rem}
-}
+  .sidebar-tabs { padding: 14px 12px 0; flex: 1; }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: none;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-btn.active { background: rgba(255,255,255,0.07); color: var(--text); }
+  .nav-btn i { font-size: 16px; }
+
+  /* Main */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .topbar {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 12px;
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar-title { font-size: 14px; font-weight: 500; }
+  .topbar-sep { color: var(--text3); }
+  .topbar-sub { font-size: 13px; color: var(--text2); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .topbar-date {
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--text3);
+    background: var(--bg3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .content { padding: 24px; flex: 1; overflow-y: auto; }
+
+  /* Metric cards row */
+  .metrics-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+  .metric-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+  .metric-label { font-size: 11px; color: var(--text3); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+  .metric-value { font-size: 26px; font-weight: 300; color: var(--text); font-family: var(--mono); line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 5px; }
+
+  /* KPI Table */
+  .kpi-panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title { font-size: 13px; font-weight: 500; }
+  .panel-badge {
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 18px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  td { padding: 12px 18px; font-size: 13px; vertical-align: middle; }
+
+  .kpi-name { color: var(--text); }
+  .kpi-target { font-family: var(--mono); font-size: 12px; color: var(--text3); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-family: var(--mono);
+  }
+  .status-ok   { background: var(--ok-bg);   color: var(--ok);   }
+  .status-warn { background: var(--warn-bg); color: var(--warn); }
+  .status-fail { background: var(--fail-bg); color: var(--fail); }
+
+  .progress-cell { display: flex; align-items: center; gap: 10px; }
+  .bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; min-width: 80px; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+  .bar-ok   { background: var(--ok); }
+  .bar-warn { background: var(--warn); }
+  .bar-fail { background: var(--fail); }
+  .bar-val { font-family: var(--mono); font-size: 12px; color: var(--text); min-width: 48px; text-align: right; }
+
+  /* Notifications */
+  .notif-list { display: flex; flex-direction: column; gap: 8px; }
+  .notif-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .notif-item:hover { border-color: var(--border2); background: var(--bg3); }
+  .notif-item.fail { border-left: 2px solid var(--fail); }
+  .notif-item.warn { border-left: 2px solid var(--warn); }
+  .notif-item.ok   { border-left: 2px solid var(--ok);   }
+
+  .notif-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .notif-icon.fail { background: var(--fail-bg); color: var(--fail); }
+  .notif-icon.warn { background: var(--warn-bg); color: var(--warn); }
+  .notif-icon.ok   { background: var(--ok-bg);   color: var(--ok);   }
+
+  .notif-body { flex: 1; }
+  .notif-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .notif-desc  { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+  .notif-time  { font-size: 11px; font-family: var(--mono); color: var(--text3); flex-shrink: 0; margin-top: 2px; }
+
+  /* Gap Assessment */
+  .gap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .gap-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .gap-metric-name { font-size: 12px; color: var(--text2); margin-bottom: 8px; }
+  .gap-numbers { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .gap-actual { font-size: 22px; font-weight: 300; font-family: var(--mono); }
+  .gap-slash { color: var(--text3); }
+  .gap-target-val { font-size: 13px; font-family: var(--mono); color: var(--text3); }
+  .gap-diff-row { display: flex; align-items: center; justify-content: space-between; }
+  .gap-diff { font-size: 12px; font-family: var(--mono); font-weight: 500; }
+  .gap-diff.neg { color: var(--fail); }
+  .gap-diff.pos { color: var(--ok); }
+
+  .action-box {
+    background: rgba(249,112,102,0.06);
+    border: 1px solid rgba(249,112,102,0.2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .action-title { font-size: 12px; font-weight: 600; color: var(--fail); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .action-item { font-size: 12px; color: var(--text2); padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: flex-start; gap: 8px; }
+  .action-item:last-child { border-bottom: none; }
+  .action-bullet { color: var(--fail); flex-shrink: 0; margin-top: 1px; }
+
+  /* Escalation */
+  .esc-chain {
+    display: flex;
+    align-items: center;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    gap: 0;
+  }
+  .esc-node { display: flex; flex-direction: column; align-items: center; min-width: 90px; position: relative; }
+  .esc-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    border: 1.5px solid transparent;
+    transition: all 0.2s;
+    color: var(--text3);
+    background: var(--bg3);
+  }
+  .esc-node.current .esc-circle {
+    border-color: var(--role-color);
+    color: var(--role-color);
+    background: var(--role-bg);
+    box-shadow: 0 0 0 4px var(--role-bg);
+  }
+  .esc-node.above .esc-circle { color: var(--text2); }
+  .esc-node-name { font-size: 11px; color: var(--text3); margin-top: 8px; text-align: center; }
+  .esc-node.current .esc-node-name { color: var(--role-color); font-weight: 500; }
+  .esc-connector { flex: 1; height: 1px; background: var(--border2); min-width: 20px; margin-bottom: 20px; }
+  .esc-connector.active { background: linear-gradient(to right, var(--fail), var(--fail)); }
+
+  /* Two-col layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Util */
+  .section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+  .mb16 { margin-bottom: 16px; }
+  .mb20 { margin-bottom: 20px; }
+
+  /* Hide/show views */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Empty state */
+  .empty { padding: 32px; text-align: center; color: var(--text3); font-size: 13px; }
+  .empty i { font-size: 28px; display: block; margin-bottom: 8px; color: var(--ok); }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .metrics-row { grid-template-columns: repeat(2,1fr); }
+    .gap-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 680px) {
+    .sidebar { display: none; }
+    .metrics-row { grid-template-columns: repeat(2,1fr); }
+  }
 </style>
 </head>
 <body>
+<div class="shell">
 
-<!-- LOADER -->
-<div class="loader" id="loader">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-    <div class="spinner"></div>
-    <div class="loader-text" id="loader-msg">Fetching live data from Google Sheets…</div>
-  </div>
-</div>
-
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="logo-mark">
-    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-  </div>
-  <span class="app-title">Production <span>Dashboard</span></span>
-  <div class="topbar-right">
-    <div class="status-dot" id="status-dot" style="background:var(--amber)"></div>
-    <span class="status-text" id="status-text">Loading…</span>
-    <span id="last-updated">–</span>
-  </div>
-</header>
-
-<!-- ERROR BANNER -->
-<div class="error-banner" id="error-banner">
-  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-  <span id="error-msg">Could not load data.</span>
-  <button class="btn btn-refresh" style="margin-left:auto;padding:5px 12px;font-size:.78rem" onclick="loadData()">Retry</button>
-</div>
-
-<!-- FILTERS -->
-<div class="filters">
-  <div class="fg">
-    <label>SBU</label>
-    <select id="f-sbu"><option value="">Select All</option></select>
-  </div>
-  <div class="fg">
-    <label>Shop Floor</label>
-    <select id="f-shopfloor"><option value="">Select All</option></select>
-  </div>
-  <div class="fg">
-    <label>Mill Name</label>
-    <select id="f-mill"><option value="">Select All</option></select>
-  </div>
-  <div class="fg">
-    <label>Product</label>
-    <select id="f-product"><option value="">Select All</option></select>
-  </div>
-  <div class="fg">
-    <label>Shift</label>
-    <select id="f-shift"><option value="">Select All</option></select>
-  </div>
-  <div class="fg">
-    <label>From Date</label>
-    <input type="date" id="f-from">
-  </div>
-  <div class="fg">
-    <label>To Date</label>
-    <input type="date" id="f-to">
-  </div>
-  <div class="filter-btns">
-    <button class="btn btn-reset" onclick="resetFilters()">
-      <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4C7.58 4 4 7.58 4 12s3.58 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-      Reset
-    </button>
-    <button class="btn btn-refresh" onclick="loadData()">
-      <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4C7.58 4 4 7.58 4 12s3.58 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-      Refresh
-    </button>
-    <button class="btn btn-excel" onclick="exportCSV()">
-      <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-      Excel
-    </button>
-  </div>
-</div>
-
-<!-- KPI STRIP -->
-<div class="kpi-strip">
-  <div class="kpi"><div class="kpi-label">Total TGT O/P</div><div class="kpi-val" id="k-tgt"><div class="shimmer"></div></div><div class="kpi-sub">MT</div></div>
-  <div class="kpi"><div class="kpi-label">Total Actual O/P</div><div class="kpi-val" id="k-actual"><div class="shimmer"></div></div><div class="kpi-sub">MT</div></div>
-  <div class="kpi"><div class="kpi-label">Good Production</div><div class="kpi-val" id="k-good"><div class="shimmer"></div></div><div class="kpi-sub">MT</div></div>
-  <div class="kpi"><div class="kpi-label">Avg Achiv %</div><div class="kpi-val" id="k-achiv"><div class="shimmer"></div></div><div class="kpi-sub">Achievement</div></div>
-  <div class="kpi"><div class="kpi-label">Avg OEE %</div><div class="kpi-val" id="k-oee"><div class="shimmer"></div></div><div class="kpi-sub">Effectiveness</div></div>
-  <div class="kpi"><div class="kpi-label">Avg NPT %</div><div class="kpi-val" id="k-npt"><div class="shimmer"></div></div><div class="kpi-sub">Non-Productive Time</div></div>
-</div>
-
-<!-- TABLE -->
-<section class="table-section">
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-title">Production Report</span>
-      <span class="row-count" id="row-count">– rows</span>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-dot"></div>
+        KPI Flow
+      </div>
+      <div class="sidebar-sub">Non-achievement monitor</div>
     </div>
-    <div class="tscroll">
-      <table>
-        <thead>
-          <tr id="thead-row">
-            <th data-col="Date" onclick="sortBy('Date')">Date</th>
-            <th data-col="Product Criteria" onclick="sortBy('Product Criteria')">Product</th>
-            <th data-col="Shift" onclick="sortBy('Shift')">Shift</th>
-            <th data-col="Mill Name" onclick="sortBy('Mill Name')">Mill Name</th>
-            <th data-col="Shift Target (MT)" onclick="sortBy('Shift Target (MT)')">TGT O/P</th>
-            <th data-col="Actual Output (MT)" onclick="sortBy('Actual Output (MT)')">Actual O/P</th>
-            <th data-col="Total Good Production (MT)" onclick="sortBy('Total Good Production (MT)')">Good Production</th>
-            <th data-col="Achievement %" onclick="sortBy('Achievement %')">Achiv%</th>
-            <th data-col="Wastage%" onclick="sortBy('Wastage%')">Wastage%</th>
-            <th data-col="Performance%" onclick="sortBy('Performance%')">Performance%</th>
-            <th data-col="Availability%" onclick="sortBy('Availability%')">Availability%</th>
-            <th data-col="Quality%" onclick="sortBy('Quality%')">Quality%</th>
-            <th data-col="OEE%" onclick="sortBy('OEE%')">OEE%</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Roles</div>
+      <button class="role-btn active" style="--role-color:var(--helper);--role-bg:var(--helper-bg)" onclick="setRole('helper',this)">
+        <div class="role-dot" style="background:var(--helper)"></div>
+        Helper
+        <span class="role-badge-count warn" id="rb-helper">2</span>
+      </button>
+      <button class="role-btn" style="--role-color:var(--operator);--role-bg:var(--operator-bg)" onclick="setRole('operator',this)">
+        <div class="role-dot" style="background:var(--operator)"></div>
+        Operator
+        <span class="role-badge-count warn" id="rb-operator">3</span>
+      </button>
+      <button class="role-btn" style="--role-color:var(--supervisor);--role-bg:var(--supervisor-bg)" onclick="setRole('supervisor',this)">
+        <div class="role-dot" style="background:var(--supervisor)"></div>
+        Supervisor
+        <span class="role-badge-count" id="rb-supervisor">3</span>
+      </button>
+      <button class="role-btn" style="--role-color:var(--officer);--role-bg:var(--officer-bg)" onclick="setRole('officer',this)">
+        <div class="role-dot" style="background:var(--officer)"></div>
+        Officer
+        <span class="role-badge-count warn" id="rb-officer">2</span>
+      </button>
+      <button class="role-btn" style="--role-color:var(--manager);--role-bg:var(--manager-bg)" onclick="setRole('manager',this)">
+        <div class="role-dot" style="background:var(--manager)"></div>
+        Manager
+        <span class="role-badge-count" id="rb-manager">4</span>
+      </button>
     </div>
-    <div class="tfoot">
-      <span class="pinfo" id="pinfo"></span>
-      <button class="pbtn" id="btn-prev" onclick="page(-1)">‹ Prev</button>
-      <span id="page-nums"></span>
-      <button class="pbtn" id="btn-next" onclick="page(1)">Next ›</button>
+
+    <div class="sidebar-tabs">
+      <div class="sidebar-section-label" style="padding:0 8px;margin-bottom:6px">Views</div>
+      <button class="nav-btn active" id="nb-kpi" onclick="setTab('kpi')"><i class="ti ti-chart-bar"></i> KPI status</button>
+      <button class="nav-btn" id="nb-notif" onclick="setTab('notif')"><i class="ti ti-bell"></i> Notifications</button>
+      <button class="nav-btn" id="nb-gap" onclick="setTab('gap')"><i class="ti ti-report-analytics"></i> Gap assessment</button>
+      <button class="nav-btn" id="nb-esc" onclick="setTab('esc')"><i class="ti ti-arrow-up-right"></i> Escalation</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="topbar-role">Helper</span>
+      <span class="topbar-sep">·</span>
+      <span class="topbar-sub" id="topbar-tab">KPI Status</span>
+      <div class="topbar-right">
+        <span class="topbar-date">May 2026 · Week 3</span>
+      </div>
+    </div>
+
+    <div class="content" id="main-content">
+      <!-- Rendered by JS -->
     </div>
   </div>
-</section>
+</div>
 
 <script>
-// ─────────────────────────────────────────────────────────────────
-//  CONFIG  ← Only this section needs updating if the sheet changes
-// ─────────────────────────────────────────────────────────────────
-const CONFIG = {
-  // Your Google Sheet ID (from the URL)
-  SHEET_ID: '17isMrQuxVMbFjsL8sIiB6iwm3xRTr-4gELPxZmPeOTQ',
-  // The exact tab name you want to read from
-  SHEET_TAB: 'Production Report.',
-  // How often to auto-refresh (ms). 0 = disabled
-  AUTO_REFRESH_MS: 5 * 60 * 1000, // 5 minutes
-  // Rows per page
-  PAGE_SIZE: 20,
+const ROLES = ['helper','operator','supervisor','officer','manager'];
+const ROLE_VARS = {
+  helper:     { color:'var(--helper)',     bg:'var(--helper-bg)'     },
+  operator:   { color:'var(--operator)',   bg:'var(--operator-bg)'   },
+  supervisor: { color:'var(--supervisor)', bg:'var(--supervisor-bg)' },
+  officer:    { color:'var(--officer)',    bg:'var(--officer-bg)'    },
+  manager:    { color:'var(--manager)',    bg:'var(--manager-bg)'    },
 };
 
-// Build the public CSV export URL (sheet must be "Anyone with link can view")
-const csvUrl = () =>
-  `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_TAB)}`;
+const DATA = {
+  helper: {
+    label: 'Helper',
+    metrics: { tasks:34, met:2, warn:1, fail:1 },
+    kpis: [
+      { name:'Task completion rate',     target:95,  actual:88,  unit:'%'  },
+      { name:'Error rate',               target:2,   actual:5,   unit:'%',  invert:true },
+      { name:'Avg handling time',        target:12,  actual:14,  unit:' min', invert:true },
+      { name:'Attendance rate',          target:98,  actual:99,  unit:'%'  },
+    ],
+    notifs: [
+      { sev:'fail', title:'Error rate exceeds threshold',   desc:'Current 5% — target ≤2%. Immediate corrective action required.', time:'9:14 AM' },
+      { sev:'warn', title:'Handling time above target',     desc:'Avg 14 min vs 12 min target. Upward trend: 2 consecutive days.', time:'8:50 AM' },
+      { sev:'ok',   title:'Attendance KPI achieved',        desc:'99% attendance recorded this week. Exceeds 98% target.', time:'8:00 AM' },
+    ],
+  },
+  operator: {
+    label: 'Operator',
+    metrics: { tasks:18, met:2, warn:2, fail:1 },
+    kpis: [
+      { name:'Output volume',            target:500, actual:470, unit:' units' },
+      { name:'Quality pass rate',        target:98,  actual:95,  unit:'%' },
+      { name:'Downtime per week',        target:2,   actual:3.5, unit:' h', invert:true },
+      { name:'SOP compliance',           target:100, actual:92,  unit:'%' },
+      { name:'Safety incidents',         target:0,   actual:0,   unit:''  },
+    ],
+    notifs: [
+      { sev:'fail', title:'Output volume below target',     desc:'470 of 500 target units produced. −6% shortfall this week.', time:'10:02 AM' },
+      { sev:'warn', title:'Downtime exceeds 2 h limit',    desc:'3.5 h downtime logged. Root cause analysis pending.', time:'9:30 AM' },
+      { sev:'warn', title:'Quality pass rate declining',   desc:'95% vs 98% target. 3 defect batches flagged for review.', time:'9:05 AM' },
+      { sev:'ok',   title:'Zero safety incidents',          desc:'Week 3 closed with no reportable safety events.', time:'8:00 AM' },
+    ],
+  },
+  supervisor: {
+    label: 'Supervisor',
+    metrics: { tasks:9, met:3, warn:1, fail:2 },
+    kpis: [
+      { name:'Team efficiency index',    target:90, actual:84, unit:'%' },
+      { name:'KPI pass rate (team)',     target:85, actual:78, unit:'%' },
+      { name:'Escalation resolution',   target:95, actual:96, unit:'%' },
+      { name:'Schedule adherence',      target:98, actual:97, unit:'%' },
+      { name:'Training completion',     target:100,actual:72, unit:'%' },
+    ],
+    notifs: [
+      { sev:'fail', title:'Training completion critical',   desc:'72% vs 100% target. 5 staff with incomplete modules.', time:'11:20 AM' },
+      { sev:'fail', title:'Team efficiency below target',   desc:'84% vs 90%. Operator downtime is the primary driver.', time:'10:45 AM' },
+      { sev:'warn', title:'KPI pass rate declining',        desc:'78% team KPI pass rate. 3 helpers escalated this week.', time:'10:10 AM' },
+      { sev:'ok',   title:'Escalation resolution on track', desc:'96% resolution within SLA — 1 pt above target.', time:'9:00 AM' },
+    ],
+  },
+  officer: {
+    label: 'Officer',
+    metrics: { tasks:7, met:3, warn:2, fail:1 },
+    kpis: [
+      { name:'Dept. output vs plan',    target:100, actual:94,  unit:'%' },
+      { name:'Cost per unit',           target:18,  actual:21,  unit:'$', invert:true },
+      { name:'Compliance score',        target:95,  actual:98,  unit:'%' },
+      { name:'Staff turnover rate',     target:5,   actual:7,   unit:'%', invert:true },
+      { name:'Open audit findings',     target:0,   actual:2,   unit:'', invert:true },
+    ],
+    notifs: [
+      { sev:'fail', title:'Cost per unit over budget',      desc:'$21 actual vs $18 target. Escalated to manager.', time:'12:00 PM' },
+      { sev:'warn', title:'Dept. output gap persists',      desc:'94% of plan achieved. Cumulative shortfall: 180 units.', time:'11:30 AM' },
+      { sev:'warn', title:'Staff turnover above threshold', desc:'7% vs 5% target. Exit interviews being scheduled.', time:'10:55 AM' },
+      { sev:'ok',   title:'Compliance score exceeds target',desc:'98% compliance — 3 pts above minimum. Audit passed.', time:'9:00 AM' },
+    ],
+  },
+  manager: {
+    label: 'Manager',
+    metrics: { tasks:5, met:2, warn:2, fail:2 },
+    kpis: [
+      { name:'Overall production KPI',  target:92, actual:87, unit:'%' },
+      { name:'Budget adherence',        target:100,actual:96, unit:'%' },
+      { name:'Revenue vs target',       target:100,actual:103,unit:'%' },
+      { name:'Workforce efficiency',    target:90, actual:82, unit:'%' },
+      { name:'Strategic initiative progress', target:75,actual:50,unit:'%' },
+    ],
+    notifs: [
+      { sev:'fail', title:'Strategic initiatives off-track',desc:'50% vs 75% target. Q2 executive review triggered.', time:'1:00 PM' },
+      { sev:'fail', title:'Workforce efficiency critical',  desc:'82% vs 90% target. Training and operational gaps cited.', time:'12:30 PM' },
+      { sev:'warn', title:'Production KPI gap widening',    desc:'87% vs 92%. Consolidated from 3 department shortfalls.', time:'11:50 AM' },
+      { sev:'warn', title:'Budget adherence watch',         desc:'96% on-budget. $42k variance flagged for review.', time:'11:00 AM' },
+      { sev:'ok',   title:'Revenue exceeds target',         desc:'103% of plan. Q2 trajectory looks strong.', time:'9:00 AM' },
+    ],
+  },
+};
 
-// ─── State ───────────────────────────────────────────────────────
-let allRows = [];       // full parsed dataset
-let filtered = [];     // after filters
-let sortCol = 'Date';
-let sortDir = 1;       // 1 asc, -1 desc
-let currentPage = 1;
+let role = 'helper';
+let tab  = 'kpi';
 
-// ─── CSV Parser ───────────────────────────────────────────────────
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = splitCSVLine(lines[0]);
-  return lines.slice(1).map(line => {
-    const vals = splitCSVLine(line);
-    const obj = {};
-    headers.forEach((h, i) => obj[h.trim()] = (vals[i] || '').trim());
-    return obj;
-  }).filter(r => r['SBU'] && r['SBU'] !== 'SBU'); // skip empty / repeat header rows
+function getStatus(k) {
+  if (k.invert) {
+    if (k.target === 0 && k.actual === 0) return 'ok';
+    if (k.actual <= k.target) return 'ok';
+    if (k.actual <= k.target * 1.3) return 'warn';
+    return 'fail';
+  }
+  const r = k.actual / Math.max(k.target, 0.001);
+  if (r >= 0.97) return 'ok';
+  if (r >= 0.90) return 'warn';
+  return 'fail';
 }
 
-function splitCSVLine(line) {
-  const result = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') {
-      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (c === ',' && !inQ) {
-      result.push(cur); cur = '';
+function progressPct(k) {
+  if (k.invert) {
+    if (k.target === 0 && k.actual === 0) return 100;
+    return Math.min(100, Math.round(k.target / Math.max(k.actual, 0.001) * 100));
+  }
+  return Math.min(100, Math.round(k.actual / Math.max(k.target, 0.001) * 100));
+}
+
+function setRole(r, btn) {
+  role = r;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('topbar-role').textContent = DATA[r].label;
+  render();
+}
+
+function setTab(t) {
+  tab = t;
+  const labels = { kpi:'KPI Status', notif:'Notifications', gap:'Gap Assessment', esc:'Escalation' };
+  document.getElementById('topbar-tab').textContent = labels[t];
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const nb = document.getElementById('nb-'+t);
+  if (nb) nb.classList.add('active');
+  render();
+}
+
+function render() {
+  const d = DATA[role];
+  const rv = ROLE_VARS[role];
+  let html = '';
+
+  // Metric cards
+  html += `<div class="metrics-row">
+    <div class="metric-card" style="--accent:${rv.color}">
+      <div class="metric-label">Active tasks</div>
+      <div class="metric-value">${d.metrics.tasks}</div>
+      <div class="metric-sub">This week</div>
+    </div>
+    <div class="metric-card" style="--accent:var(--ok)">
+      <div class="metric-label">KPI met</div>
+      <div class="metric-value" style="color:var(--ok)">${d.metrics.met}</div>
+      <div class="metric-sub">On track</div>
+    </div>
+    <div class="metric-card" style="--accent:var(--warn)">
+      <div class="metric-label">At risk</div>
+      <div class="metric-value" style="color:var(--warn)">${d.metrics.warn}</div>
+      <div class="metric-sub">Need attention</div>
+    </div>
+    <div class="metric-card" style="--accent:var(--fail)">
+      <div class="metric-label">KPI missed</div>
+      <div class="metric-value" style="color:var(--fail)">${d.metrics.fail}</div>
+      <div class="metric-sub">Not achieved</div>
+    </div>
+  </div>`;
+
+  if (tab === 'kpi') {
+    html += `<div class="kpi-panel">
+      <div class="panel-header">
+        <div class="panel-title">KPI tracker — ${d.label}</div>
+        <span class="panel-badge status-fail">${d.metrics.fail} missed</span>
+      </div>
+      <table>
+        <thead><tr>
+          <th>Metric</th>
+          <th>Status</th>
+          <th style="width:200px">Progress</th>
+          <th>Actual</th>
+          <th>Target</th>
+        </tr></thead>
+        <tbody>`;
+    d.kpis.forEach(k => {
+      const s = getStatus(k);
+      const pct = progressPct(k);
+      const label = s==='ok'?'On track':s==='warn'?'At risk':'Missed';
+      html += `<tr>
+        <td class="kpi-name">${k.name}</td>
+        <td><span class="status-badge status-${s}">${label}</span></td>
+        <td>
+          <div class="progress-cell">
+            <div class="bar-bg"><div class="bar-fill bar-${s}" style="width:${pct}%"></div></div>
+            <span style="font-size:11px;color:var(--text3);font-family:var(--mono);min-width:32px;text-align:right">${pct}%</span>
+          </div>
+        </td>
+        <td class="bar-val">${k.actual}${k.unit}</td>
+        <td class="kpi-target">${k.target}${k.unit}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  if (tab === 'notif') {
+    html += `<div class="section-title mb16">Non-achievement alerts — ${d.label}</div>
+    <div class="notif-list">`;
+    d.notifs.forEach(n => {
+      const icon = n.sev==='ok'?'ti-circle-check':n.sev==='warn'?'ti-alert-triangle':'ti-alert-circle';
+      html += `<div class="notif-item ${n.sev}">
+        <div class="notif-icon ${n.sev}"><i class="ti ${icon}"></i></div>
+        <div class="notif-body">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-desc">${n.desc}</div>
+        </div>
+        <div class="notif-time">${n.time}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (tab === 'gap') {
+    html += `<div class="section-title mb16">Gap assessment — ${d.label}</div>
+    <div class="gap-grid">`;
+    d.kpis.forEach(k => {
+      const s = getStatus(k);
+      const diff = Math.round((k.actual - k.target) * 10) / 10;
+      const isNeg = k.invert ? diff > 0 : diff < 0;
+      const diffStr = (diff >= 0 ? '+' : '') + diff + k.unit;
+      html += `<div class="gap-card">
+        <div class="gap-metric-name">${k.name}</div>
+        <div class="gap-numbers">
+          <span class="gap-actual" style="color:${s==='ok'?'var(--ok)':s==='warn'?'var(--warn)':'var(--fail)'}">${k.actual}${k.unit}</span>
+          <span class="gap-slash">/</span>
+          <span class="gap-target-val">${k.target}${k.unit}</span>
+        </div>
+        <div class="gap-diff-row">
+          <span class="gap-diff ${isNeg?'neg':'pos'}">${diffStr} ${isNeg?'▼':'▲'}</span>
+          <span class="status-badge status-${s}">${s==='ok'?'OK':s==='warn'?'Risk':'Gap'}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+
+    const failed = d.kpis.filter(k => getStatus(k) === 'fail');
+    if (failed.length) {
+      html += `<div class="action-box">
+        <div class="action-title"><i class="ti ti-alert-circle" style="margin-right:6px"></i>Corrective actions required</div>`;
+      failed.forEach(k => {
+        const gap = Math.abs(Math.round((k.actual - k.target)*10)/10);
+        html += `<div class="action-item"><span class="action-bullet">›</span><span><strong>${k.name}:</strong> Gap of ${gap}${k.unit} — corrective action plan required within 24 hours. Escalate if unresolved by next cycle.</span></div>`;
+      });
+      html += `</div>`;
     } else {
-      cur += c;
+      html += `<div class="empty"><i class="ti ti-circle-check"></i>No critical gaps requiring escalation</div>`;
     }
   }
-  result.push(cur);
-  return result;
-}
 
-// ─── Load Data ───────────────────────────────────────────────────
-async function loadData() {
-  showLoader('Fetching live data from Google Sheets…');
-  hideError();
+  if (tab === 'esc') {
+    const ci = ROLES.indexOf(role);
+    const rv2 = ROLE_VARS[role];
 
-  try {
-    const url = csvUrl();
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    if (!text || text.trim().length < 10) throw new Error('Empty response from sheet');
+    html += `<div class="esc-chain">`;
+    ROLES.forEach((r2, i) => {
+      const isCurrent = i === ci;
+      const isAbove = i > ci;
+      html += `<div class="esc-node ${isCurrent?'current':isAbove?'above':''}" style="--role-color:${ROLE_VARS[r2].color};--role-bg:${ROLE_VARS[r2].bg}">
+        <div class="esc-circle">
+          <i class="ti ${isCurrent?'ti-user':isAbove?'ti-user-up':'ti-user-check'}"></i>
+        </div>
+        <div class="esc-node-name">${DATA[r2].label}</div>
+      </div>`;
+      if (i < ROLES.length - 1) {
+        html += `<div class="esc-connector ${i === ci && DATA[role].kpis.filter(k=>getStatus(k)==='fail').length > 0 ? 'active' : ''}"></div>`;
+      }
+    });
+    html += `</div>`;
 
-    allRows = parseCSV(text);
-    if (allRows.length === 0) throw new Error('No data rows found in "' + CONFIG.SHEET_TAB + '"');
+    const escalated = d.kpis.filter(k => getStatus(k) === 'fail');
+    const nextRole = ROLES[ci+1];
+    const prevRole = ROLES[ci-1];
 
-    populateFilters();
-    applyFilters();
-    updateStatus('Live', true);
-    hideLoader();
+    html += `<div class="two-col">`;
 
-    const now = new Date();
-    document.getElementById('last-updated').textContent =
-      'Updated ' + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
-  } catch (err) {
-    hideLoader();
-    showError('Failed to load: ' + err.message + '. Make sure the sheet is shared as "Anyone with link can view".');
-    updateStatus('Error', false);
-    console.error(err);
-  }
-}
-
-// ─── Filters ─────────────────────────────────────────────────────
-function populateFilters() {
-  const unique = (key) => [...new Set(allRows.map(r => r[key]).filter(Boolean))].sort();
-
-  fillSelect('f-sbu',       unique('SBU'));
-  fillSelect('f-shopfloor', unique('Shift Name'));
-  fillSelect('f-mill',      unique('Mill Name'));
-  fillSelect('f-product',   unique('Product Criteria'));
-  fillSelect('f-shift',     unique('Shift'));
-}
-
-function fillSelect(id, options) {
-  const sel = document.getElementById(id);
-  const prev = sel.value;
-  while (sel.options.length > 1) sel.remove(1);
-  options.forEach(v => {
-    const o = document.createElement('option');
-    o.value = o.textContent = v;
-    sel.appendChild(o);
-  });
-  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
-}
-
-function applyFilters() {
-  const sbu      = v('f-sbu');
-  const shop     = v('f-shopfloor');
-  const mill     = v('f-mill');
-  const product  = v('f-product');
-  const shift    = v('f-shift');
-  const fromDate = v('f-from');
-  const toDate   = v('f-to');
-
-  filtered = allRows.filter(r => {
-    if (sbu     && r['SBU']              !== sbu)     return false;
-    if (shop    && r['Shift Name']        !== shop)    return false;
-    if (mill    && r['Mill Name']         !== mill)    return false;
-    if (product && r['Product Criteria']  !== product) return false;
-    if (shift   && r['Shift']             !== shift)   return false;
-    if (fromDate || toDate) {
-      const d = parseDate(r['Date']);
-      if (fromDate && d < new Date(fromDate)) return false;
-      if (toDate   && d > new Date(toDate))   return false;
-    }
-    return true;
-  });
-
-  filtered.sort((a, b) => {
-    let av = a[sortCol] || '', bv = b[sortCol] || '';
-    const an = parseFloat(av.replace(/[%,]/g, '')), bn = parseFloat(bv.replace(/[%,]/g, ''));
-    if (!isNaN(an) && !isNaN(bn)) return sortDir * (an - bn);
-    return sortDir * av.localeCompare(bv);
-  });
-
-  currentPage = 1;
-  updateKPIs();
-  renderTable();
-}
-
-function v(id) { return document.getElementById(id).value; }
-
-function parseDate(s) {
-  if (!s) return new Date(0);
-  const p = s.split('/');
-  if (p.length === 3) return new Date(p[2], p[0]-1, p[1]);
-  return new Date(s);
-}
-
-function resetFilters() {
-  ['f-sbu','f-shopfloor','f-mill','f-product','f-shift'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-from').value = '';
-  document.getElementById('f-to').value = '';
-  applyFilters();
-}
-
-// ─── KPIs ─────────────────────────────────────────────────────────
-function updateKPIs() {
-  const num = (v, fallback=0) => {
-    const n = parseFloat((v||'').replace(/[%,]/g,''));
-    return isNaN(n) ? fallback : n;
-  };
-  const rows = filtered;
-  if (!rows.length) {
-    ['k-tgt','k-actual','k-good','k-achiv','k-oee','k-npt'].forEach(id =>
-      document.getElementById(id).textContent = '0');
-    return;
-  }
-
-  const tgt     = rows.reduce((s,r) => s + num(r['Shift Target (MT)']), 0);
-  const actual  = rows.reduce((s,r) => s + num(r['Actual Output (MT)']), 0);
-  const good    = rows.reduce((s,r) => s + num(r['Total Good Production (MT)']), 0);
-
-  const achivRows = rows.filter(r => r['Achievement %']);
-  const oeeRows   = rows.filter(r => r['OEE%']);
-  const nptRows   = rows.filter(r => r['NPT%']);
-
-  const avgAchiv = achivRows.length ? achivRows.reduce((s,r) => s + num(r['Achievement %']), 0) / achivRows.length : 0;
-  const avgOEE   = oeeRows.length   ? oeeRows.reduce((s,r)   => s + num(r['OEE%']), 0)           / oeeRows.length   : 0;
-  const avgNPT   = nptRows.length   ? nptRows.reduce((s,r)   => s + num(r['NPT%']), 0)           / nptRows.length   : 0;
-
-  document.getElementById('k-tgt').textContent    = fmt(tgt);
-  document.getElementById('k-actual').textContent = fmt(actual);
-  document.getElementById('k-good').textContent   = fmt(good);
-  document.getElementById('k-achiv').textContent  = avgAchiv.toFixed(1) + '%';
-  document.getElementById('k-oee').textContent    = avgOEE.toFixed(1)   + '%';
-  document.getElementById('k-npt').textContent    = avgNPT.toFixed(1)   + '%';
-
-  colorKPI('k-achiv', avgAchiv, 90, 75);
-  colorKPI('k-oee',   avgOEE,   80, 60);
-  colorKPI('k-npt',   avgNPT,   5,  15, true);
-}
-
-function fmt(n) {
-  return n >= 1000 ? (n/1000).toFixed(1) + 'k' : n.toFixed(0);
-}
-
-function colorKPI(id, val, good, warn, invert=false) {
-  const el = document.getElementById(id);
-  el.className = 'kpi-val';
-  if (invert) {
-    el.style.color = val <= good ? 'var(--green)' : val <= warn ? 'var(--amber)' : 'var(--red)';
-  } else {
-    el.style.color = val >= good ? 'var(--green)' : val >= warn ? 'var(--amber)' : 'var(--red)';
-  }
-}
-
-// ─── Table Render ─────────────────────────────────────────────────
-function renderTable() {
-  const start  = (currentPage - 1) * CONFIG.PAGE_SIZE;
-  const end    = start + CONFIG.PAGE_SIZE;
-  const page   = filtered.slice(start, end);
-  const tbody  = document.getElementById('tbody');
-
-  document.getElementById('row-count').textContent = filtered.length + ' rows';
-
-  tbody.innerHTML = page.length
-    ? page.map(r => `
-      <tr>
-        <td>${r['Date']||'–'}</td>
-        <td><strong>${r['Product Criteria']||'–'}</strong></td>
-        <td><span class="badge badge-${(r['Shift']||'').toLowerCase()}">${r['Shift']||'–'}</span></td>
-        <td>${r['Mill Name']||'–'}</td>
-        <td>${r['Shift Target (MT)']||'–'}</td>
-        <td>${r['Actual Output (MT)']||'–'}</td>
-        <td><strong>${r['Total Good Production (MT)']||'–'}</strong></td>
-        <td class="pct ${pctClass(r['Achievement %'])}">${r['Achievement %']||'–'}</td>
-        <td class="pct ${pctClass(r['Wastage%'], true)}">${r['Wastage%']||'–'}</td>
-        <td class="pct ${pctClass(r['Performance%'])}">${r['Performance%']||'–'}</td>
-        <td class="pct ${pctClass(r['Availability%'])}">${r['Availability%']||'–'}</td>
-        <td class="pct ${pctClass(r['Quality%'])}">${r['Quality%']||'–'}</td>
-        <td class="pct ${pctClass(r['OEE%'])}">${r['OEE%']||'–'}</td>
-      </tr>`).join('')
-    : '<tr><td colspan="13" style="padding:50px;color:var(--muted)">No data matches the selected filters.</td></tr>';
-
-  renderPagination();
-}
-
-function pctClass(val, invert=false) {
-  const n = parseFloat((val||'').replace('%',''));
-  if (isNaN(n)) return '';
-  if (invert) return n <= 3.5 ? 'good' : n <= 5 ? 'warn' : 'bad';
-  return n >= 90 ? 'good' : n >= 70 ? 'warn' : 'bad';
-}
-
-// ─── Sort ─────────────────────────────────────────────────────────
-function sortBy(col) {
-  if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
-  document.querySelectorAll('th').forEach(th => {
-    th.classList.remove('asc','desc');
-    if (th.dataset.col === col) th.classList.add(sortDir === 1 ? 'asc' : 'desc');
-  });
-  applyFilters();
-}
-
-// ─── Pagination ───────────────────────────────────────────────────
-function renderPagination() {
-  const total  = Math.ceil(filtered.length / CONFIG.PAGE_SIZE) || 1;
-  const start  = (currentPage - 1) * CONFIG.PAGE_SIZE + 1;
-  const end    = Math.min(currentPage * CONFIG.PAGE_SIZE, filtered.length);
-  document.getElementById('pinfo').textContent =
-    filtered.length ? `Showing ${start}–${end} of ${filtered.length}` : '';
-  document.getElementById('btn-prev').disabled = currentPage === 1;
-  document.getElementById('btn-next').disabled = currentPage >= total;
-
-  const nums = document.getElementById('page-nums');
-  nums.innerHTML = '';
-  const pages = pageRange(currentPage, total);
-  pages.forEach(p => {
-    if (p === '…') {
-      const s = document.createElement('span');
-      s.textContent = '…'; s.style.cssText = 'padding:0 4px;color:var(--muted)';
-      nums.appendChild(s);
+    // Outbound
+    html += `<div>
+      <div class="section-title mb16">Outbound — escalating up to ${nextRole ? DATA[nextRole].label : 'Executive'}</div>
+      <div class="notif-list">`;
+    if (escalated.length) {
+      escalated.forEach(k => {
+        html += `<div class="notif-item fail">
+          <div class="notif-icon fail"><i class="ti ti-arrow-up-right"></i></div>
+          <div class="notif-body">
+            <div class="notif-title">${k.name}</div>
+            <div class="notif-desc">Actual: ${k.actual}${k.unit} vs target ${k.target}${k.unit}. Auto-notified after 2 missed cycles.</div>
+          </div>
+          <span class="status-badge status-fail">Escalated</span>
+        </div>`;
+      });
     } else {
-      const b = document.createElement('button');
-      b.textContent = p; b.className = 'pbtn' + (p === currentPage ? ' active' : '');
-      b.onclick = () => { currentPage = p; renderTable(); };
-      nums.appendChild(b);
+      html += `<div class="empty"><i class="ti ti-circle-check"></i>No active escalations</div>`;
     }
+    html += `</div></div>`;
+
+    // Inbound
+    html += `<div>
+      <div class="section-title mb16">Inbound — received from ${prevRole ? DATA[prevRole].label : '—'}</div>
+      <div class="notif-list">`;
+    if (prevRole) {
+      const intake = DATA[prevRole].kpis.filter(k => getStatus(k) === 'fail');
+      if (intake.length) {
+        intake.forEach(k => {
+          html += `<div class="notif-item warn">
+            <div class="notif-icon warn"><i class="ti ti-arrow-down-left"></i></div>
+            <div class="notif-body">
+              <div class="notif-title">${k.name}</div>
+              <div class="notif-desc">Escalated from ${DATA[prevRole].label}. Requires review and corrective action assignment.</div>
+            </div>
+            <span class="status-badge status-warn">Pending</span>
+          </div>`;
+        });
+      } else {
+        html += `<div class="empty"><i class="ti ti-circle-check"></i>No inbound escalations</div>`;
+      }
+    } else {
+      html += `<div class="empty" style="color:var(--text3);font-size:12px">No lower role in chain</div>`;
+    }
+    html += `</div></div>`;
+
+    html += `</div>`; // two-col
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+// Init badge colors
+function initBadges() {
+  ROLES.forEach(r => {
+    const d = DATA[r];
+    const el = document.getElementById('rb-'+r);
+    if (!el) return;
+    if (d.metrics.fail >= 2) { el.className = 'role-badge-count'; el.style.background='var(--fail-bg)'; el.style.color='var(--fail)'; el.textContent = d.metrics.fail; }
+    else if (d.metrics.warn >= 2) { el.className = 'role-badge-count warn'; el.textContent = d.metrics.warn; }
+    else { el.className = 'role-badge-count ok'; el.style.background='var(--ok-bg)'; el.style.color='var(--ok)'; el.textContent = d.metrics.met; }
   });
 }
 
-function page(dir) { currentPage += dir; renderTable(); }
-
-function pageRange(cur, total) {
-  if (total <= 7) return Array.from({length:total},(_,i)=>i+1);
-  if (cur <= 4)   return [1,2,3,4,5,'…',total];
-  if (cur >= total-3) return [1,'…',total-4,total-3,total-2,total-1,total];
-  return [1,'…',cur-1,cur,cur+1,'…',total];
-}
-
-// ─── Export CSV ───────────────────────────────────────────────────
-function exportCSV() {
-  if (!filtered.length) return;
-  const cols = ['Date','Product Criteria','Shift','Mill Name','Shift Target (MT)',
-    'Actual Output (MT)','Total Good Production (MT)','Achievement %','Wastage%',
-    'Performance%','Availability%','Quality%','OEE%','NPT%'];
-  const rows = [cols.join(','), ...filtered.map(r =>
-    cols.map(c => `"${(r[c]||'').replace(/"/g,'""')}"`).join(','))];
-  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `production_report_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-}
-
-// ─── UI helpers ───────────────────────────────────────────────────
-function showLoader(msg) {
-  document.getElementById('loader').classList.remove('hidden');
-  document.getElementById('loader-msg').textContent = msg;
-}
-function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
-function showError(msg) {
-  const b = document.getElementById('error-banner');
-  document.getElementById('error-msg').textContent = msg;
-  b.classList.add('show');
-}
-function hideError() { document.getElementById('error-banner').classList.remove('show'); }
-function updateStatus(label, ok) {
-  document.getElementById('status-dot').style.background = ok ? 'var(--green)' : 'var(--red)';
-  document.getElementById('status-text').textContent = label;
-}
-
-// ─── Wire up filter change events ─────────────────────────────────
-['f-sbu','f-shopfloor','f-mill','f-product','f-shift','f-from','f-to'].forEach(id =>
-  document.getElementById(id).addEventListener('change', applyFilters));
-
-// ─── Auto refresh ─────────────────────────────────────────────────
-if (CONFIG.AUTO_REFRESH_MS > 0) {
-  setInterval(() => {
-    console.log('[Dashboard] Auto-refreshing data…');
-    loadData();
-  }, CONFIG.AUTO_REFRESH_MS);
-}
-
-// ─── Boot ─────────────────────────────────────────────────────────
-loadData();
+initBadges();
+render();
 </script>
 </body>
 </html>
